@@ -151,6 +151,7 @@ class Eye_Video_Overlay(Plugin):
         self.video_size = [0,0] #video_size of recording (bc scaling)
 
         self.detect_3D = 0
+	self.algorithm = 0
 
         self.gPool0 = Global_Container()
         self.gPool1 = Global_Container()
@@ -199,8 +200,8 @@ class Eye_Video_Overlay(Plugin):
         pupil_detector_eye0 = Detector_2D(g_pool = self.gPool0)
         pupil_detector_eye1 = Detector_2D(g_pool = self.gPool1)
 
-        pupil_detector_eye0_3D = Detector_3D(g_pool = self.gPool0)
-        pupil_detector_eye1_3D = Detector_3D(g_pool = self.gPool1)
+        pupil_detector_eye0_3D = Detector_3D(self.gPool0)
+        pupil_detector_eye1_3D = Detector_3D(self.gPool1)
 
 
         self.pupil_detectors2D = [pupil_detector_eye0,pupil_detector_eye1]
@@ -282,7 +283,7 @@ class Eye_Video_Overlay(Plugin):
         self.menu.append(ui.Button('Close',self.unset_alive))
 
         self.menu.append(ui.Switch('detect_3D',self,label="3D detection"))
-
+        self.menu.append(ui.Switch('algorithm',self,label="Algorithm view"))
 
         pupil0_menu = ui.Growing_Menu('Pupil0')
         pupil0_menu.collapsed = True
@@ -526,8 +527,11 @@ class Eye_Video_Overlay(Plugin):
 
 
                 new_frame = self.eye_frames[eye_index]
-
-                result, roi = pupil_detector.detect(new_frame, self.u_r, "algorithm")
+		if self.algorithm == 1:
+			view = "algorithm"
+		else:
+			view = False
+		result, roi = pupil_detector.detect(new_frame, self.u_r, view)
                 glints = glint_detector.glint(new_frame, eye_index, u_roi=self.u_r, pupil=result, roi=roi)
 
                 if eye_index == 0:

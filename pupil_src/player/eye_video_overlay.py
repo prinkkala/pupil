@@ -162,7 +162,7 @@ class Eye_Video_Overlay(Plugin):
 
         self.g_pool = g_pool
 
-
+        #below is a fckng mess
         self.min_size = 40
         self.max_size = 150
         self.intens_range = 17
@@ -184,6 +184,12 @@ class Eye_Video_Overlay(Plugin):
         self.canny_aperture = 5
 
 
+        self.ellipse_roundness_ratio1 = 0.1
+        self.coarse_filter_min1 = 150
+        self.coarse_filter_max1 = 300
+        self.initial_ellipse_fit_treshhold1 = 1.8
+        self.canny_treshold1 = 200
+        self.canny_ration1 = 3
 
 
         self.rec_dir = g_pool.rec_dir
@@ -292,15 +298,11 @@ class Eye_Video_Overlay(Plugin):
         pupil0_menu.append(ui.Slider('intens_range',self,min=0,step=1,max=60,label='Pupil intensity range'))
         pupil0_menu.append(ui.Slider('model_sensitivity',self,min=0.0,step=0.0001,max=1.0,label='Model sensitivity'))
         pupil0_menu[-1].display_format = '%0.4f'
-
         pupil0_menu.append(ui.Slider('ellipse_roundness_ratio',self,min=0.01,step=0.01,max=1.0,label='ellipse_roundness_ratio'))
-
         pupil0_menu.append(ui.Slider('coarse_filter_min',self,min=10,step=1,max=500,label='coarse_filter_min'))
         pupil0_menu.append(ui.Slider('coarse_filter_max',self,min=100,step=1,max=1000,label='coarse_filter_max'))
-
         pupil0_menu.append(ui.Slider('canny_treshold',self,min=50,step=1,max=500,label='canny_treshold'))
         pupil0_menu.append(ui.Slider('canny_ration',self,min=1,step=1,max=20,label='canny_ration'))
-        pupil0_menu.append(ui.Slider('canny_aperture',self,min=1,step=1,max=20,label='canny_aperture'))
 
 
         pupil0_menu.append(ui.Button('Reset 3D model', self.reset_3D_Model_eye0 ))
@@ -314,6 +316,10 @@ class Eye_Video_Overlay(Plugin):
         pupil1_menu.append(ui.Slider('intens_range1',self,min=0,step=1,max=60,label='Pupil intensity range'))
         pupil1_menu.append(ui.Slider('model_sensitivity1',self,min=0.0, step=0.0001, max=1.0, label='Model sensitivity'))
         pupil1_menu[-1].display_format = '%0.4f'
+        pupil1_menu.append(ui.Slider('coarse_filter_min1',self,min=10,step=1,max=500,label='coarse_filter_min'))
+        pupil1_menu.append(ui.Slider('coarse_filter_max1',self,min=100,step=1,max=1000,label='coarse_filter_max'))
+        pupil1_menu.append(ui.Slider('canny_treshold1',self,min=50,step=1,max=500,label='canny_treshold'))
+        pupil1_menu.append(ui.Slider('canny_ration1',self,min=1,step=1,max=20,label='canny_ration'))
         pupil1_menu.append(ui.Button('Reset 3D model', self.reset_3D_Model_eye1 ))
 
         self.menu.append(pupil1_menu)
@@ -372,26 +378,14 @@ class Eye_Video_Overlay(Plugin):
             settings["intensity_range"] = self.intens_range
             settings["pupil_size_min"] = self.min_size
             settings["pupil_size_max"] = self.max_size
-
             settings["ellipse_roundness_ratio"] = self.ellipse_roundness_ratio
             settings["coarse_filter_min"] = self.coarse_filter_min
             settings["coarse_filter_max"] = self.coarse_filter_max
-            settings["initial_ellipse_fit_treshhold"] = self.initial_ellipse_fit_treshhold
-            settings["strong_perimeter_ratio_range_min"] = self.strong_perimeter_ratio_range_min
-            settings["strong_perimeter_ratio_range_max"] = self.strong_perimeter_ratio_range_max
-
             settings["canny_treshold"] = self.canny_treshold
             settings["canny_ration"] = self.canny_ration
-            settings["canny_aperture"] = self.canny_aperture
-
-
 
             if self.detect_3D == 1:
-                settings['2D_Settings']["intensity_range"] = self.intens_range
-                settings['2D_Settings']["pupil_size_min"] = self.min_size
-                settings['2D_Settings']["pupil_size_max"] = self.max_size
-                settings['2D_Settings']['model_sensitivity'] = self.model_sensitivity
-                settings['3D_Settings']['model_sensitivity'] = self.model_sensitivity
+                settings['2D_Settings'] = settings
 
             glint_settings['glint_dist'] = self.glint_dist
             glint_settings['glint_thres'] = self.glint_thres
@@ -400,19 +394,20 @@ class Eye_Video_Overlay(Plugin):
             glint_settings['dilate'] = self.dilate
             glint_settings['erode'] = self.erode
 
-
         if eye_index == 1:
             settings["intensity_range"] = self.intens_range1
             settings["pupil_size_min"] = self.min_size1
             settings["pupil_size_max"] = self.max_size1
             settings['model_sensitivity'] = self.model_sensitivity1
+            settings["ellipse_roundness_ratio"] = self.ellipse_roundness_ratio1
+            settings["coarse_filter_min"] = self.coarse_filter_min1
+            settings["coarse_filter_max"] = self.coarse_filter_max1
+            settings["canny_treshold"] = self.canny_treshold1
+            settings["canny_ration"] = self.canny_ration1
+
 
             if self.detect_3D == 1:
-                settings['2D_Settings']["intensity_range"] = self.intens_range1
-                settings['2D_Settings']["pupil_size_min"] = self.min_size1
-                settings['2D_Settings']["pupil_size_max"] = self.max_size1
-                settings['2D_Settings']['model_sensitivity'] = self.model_sensitivity1
-                settings['3D_Settings']['model_sensitivity'] = self.model_sensitivity1
+                settings['2D_Settings'] = settings
 
             glint_settings['glint_dist'] = self.glint_dist1
             glint_settings['glint_thres'] = self.glint_thres1
